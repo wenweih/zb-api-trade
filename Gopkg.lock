@@ -9,6 +9,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/mitchellh/mapstructure"
+  packages = ["."]
+  revision = "06020f85339e21b2478f756a78e295255ffa4d6a"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = ["idna","publicsuffix"]
   revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
@@ -22,6 +28,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "feee1d3591c9e0767d99cf6038ab7263e9bdf02036e130002b8a1d7f305b2a8d"
+  inputs-digest = "847c473c2121382c8784db556205d041321120e5056106beb2eeb30f68dc5285"
   solver-name = "gps-cdcl"
   solver-version = 1

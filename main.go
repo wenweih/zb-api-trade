@@ -1,8 +1,5 @@
 package main
 
-import "fmt"
-
 func main() {
-	fmt.Println("vim-go")
-
+	depth("depth", "btc_usdt", "3")
 }
