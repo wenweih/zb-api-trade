@@ -16,19 +16,21 @@ type RespDepth struct {
 	Bids      []order `mapstructure:"bids"`
 }
 
-var client *resty.Client
+var (
+	apiClient, tradeClient *resty.Client
+)
 
 func init() {
-	client = resty.New().SetDebug(true).
+	apiClient = resty.New().SetDebug(true).
 		SetHostURL("http://api.zb.com/data/v1/").
 		SetHeaders(map[string]string{
 			"Content-Type": "application/json",
-			"User-Agent":   "Thanks zb",
+			"User-Agent":   "https://huangwenwei.com",
 		})
 }
 
 func depth(api string, market string, size string) *RespDepth {
-	resp, _ := client.SetQueryParams(map[string]string{
+	resp, _ := apiClient.SetQueryParams(map[string]string{
 		"market": market,
 		"size":   size,
 	}).R().Get(api)

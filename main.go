@@ -1,5 +1,7 @@
 package main
 
 func main() {
-	depth("depth", "btc_usdt", "3")
+	cmdExecute()
+	// resp := depth("depth", "btc_usdt", "20")
+	// fmt.Println(resp)
 }
