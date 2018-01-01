@@ -8,10 +8,15 @@ import (
 	"github.com/spf13/viper"
 )
 
+type configure struct {
+	secretkey   string
+	accesstoken string
+}
+
 // Config 中币接口配置信息
 var (
 	cfgFile string
-
+	config  configure
 	rootCmd = &cobra.Command{
 		Use:   "zb_trade",
 		Short: "A tool for earning money",
@@ -29,7 +34,7 @@ func cmdExecute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.Flags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.zb.yaml)")
+	rootCmd.Flags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/zb.yaml)")
 }
 
 func initConfig() {
@@ -42,7 +47,7 @@ func initConfig() {
 		viper.SetConfigFile(cfgFile)
 	} else {
 		viper.AddConfigPath(HomeDir())
-		viper.SetConfigName(".zb")
+		viper.SetConfigName("zb")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
@@ -53,5 +58,13 @@ func initConfig() {
 		StrLogger("Using Configure file:", viper.ConfigFileUsed())
 	} else {
 		Exit("Error: zb.yml not found in: ", HomeDir())
+	}
+
+	for key, value := range viper.AllSettings() {
+		if key == "secretkey" {
+			config.secretkey = value.(string)
+		} else if key == "accesstoken" {
+			config.accesstoken = value.(string)
+		}
 	}
 }
