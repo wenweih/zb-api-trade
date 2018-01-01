@@ -1,8 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"bytes"
+	"crypto/hmac"
+	"crypto/md5"
+	"crypto/sha1"
+	"encoding/hex"
 	"os"
+	"sort"
 	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -31,8 +36,40 @@ func StrLogger(str ...string) {
 func HomeDir() string {
 	home, err := homedir.Dir()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		Exit(err.Error())
 	}
 	return home
+}
+
+// SHA1 加密
+func digest() string {
+	hash := sha1.New()
+	hash.Write([]byte(config.secretkey))
+	return hex.EncodeToString(hash.Sum(nil))
+}
+
+// hmac MD5
+func hmacSign(message string) string {
+	hmac := hmac.New(md5.New, []byte(digest()))
+	hmac.Write([]byte(message))
+	return hex.EncodeToString(hmac.Sum(nil))
+}
+
+// 参数按照字母排序
+func sortParams(params map[string]string) string {
+	var buffer bytes.Buffer
+	sortKey := make([]string, 0, len(params))
+
+	for k := range params {
+		sortKey = append(sortKey, k)
+	}
+	sort.Strings(sortKey)
+
+	for _, k := range sortKey {
+		buffer.WriteString(k)
+		buffer.WriteString("=")
+		buffer.WriteString(params[k])
+		buffer.WriteString("&")
+	}
+	return strings.TrimSuffix(buffer.String(), "&")
 }
