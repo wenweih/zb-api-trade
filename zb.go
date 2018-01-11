@@ -18,6 +18,17 @@ type respDepth struct {
 }
 
 //==================================================//
+type respTrades []trade
+type trade struct {
+	Amount    string `json:"amount"`
+	Date      int64  `json:"date"`
+	Price     string `json:"price"`
+	Tid       int64  `json:"tid"`
+	TradeType string `json:"trade_type"`
+	TxType    string `json:"type"`
+}
+
+//==================================================//
 type accountInfoCoin struct {
 	EnName        string `mapstructure:"enName"`
 	Freez         string `mapstructure:"freez"`
@@ -44,10 +55,7 @@ type respAccountInfo struct {
 }
 
 //==================================================//
-var (
-	apiClient, tradeClient *resty.Client
-	mapInterface           map[string]interface{}
-)
+var apiClient, tradeClient *resty.Client
 
 func init() {
 	apiClient = resty.New().SetDebug(false).
@@ -69,9 +77,21 @@ func depth(api string, market string, size string) *respDepth {
 		"size":   size,
 	}).R().Get(api)
 
-	var res respDepth
+	var (
+		res          respDepth
+		mapInterface map[string]interface{}
+	)
 	json.Unmarshal(resp.Body(), &mapInterface)
 	mapstructure.Decode(mapInterface, &res)
+	return &res
+}
+
+func trades(api string, market string) *respTrades {
+	resp, _ := apiClient.SetQueryParams(map[string]string{
+		"market": market,
+	}).R().Get(api)
+	var res respTrades
+	json.Unmarshal(resp.Body(), &res)
 	return &res
 }
 
@@ -83,7 +103,10 @@ func accountInfo(api string, sign string) *respAccountInfo {
 		"reqTime":   strconv.FormatInt(time.Now().UnixNano()/1000000, 10),
 	}).R().Get(api)
 
-	var res respAccountInfo
+	var (
+		res          respAccountInfo
+		mapInterface map[string]interface{}
+	)
 	json.Unmarshal(resp.Body(), &mapInterface)
 	mapstructure.Decode(mapInterface, &res)
 	return &res
