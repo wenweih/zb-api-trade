@@ -59,13 +59,13 @@ var apiClient, tradeClient *resty.Client
 
 func init() {
 	apiClient = resty.New().SetDebug(false).
-		SetHostURL("http://api.zb.com/data/v1/").
+		SetHostURL(config.dataURL).
 		SetHeaders(map[string]string{
 			"Content-Type": "application/json",
 		})
 
 	tradeClient = resty.New().SetDebug(false).
-		SetHostURL("https://trade.zb.com/api/").
+		SetHostURL(config.tradeURL).
 		SetHeaders(map[string]string{
 			"Content-Type": "application/json",
 		})

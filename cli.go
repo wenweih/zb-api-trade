@@ -11,6 +11,8 @@ import (
 type configure struct {
 	secretkey   string
 	accesstoken string
+	dataURL     string
+	tradeURL    string
 }
 
 // Config 中币接口配置信息
@@ -61,10 +63,15 @@ func initConfig() {
 	}
 
 	for key, value := range viper.AllSettings() {
-		if key == "secretkey" {
+		switch key {
+		case "secretkey":
 			config.secretkey = value.(string)
-		} else if key == "accesstoken" {
+		case "accesstoken":
 			config.accesstoken = value.(string)
+		case "data_url":
+			config.dataURL = value.(string)
+		case "trade_url":
+			config.tradeURL = value.(string)
 		}
 	}
 }
