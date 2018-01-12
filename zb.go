@@ -55,7 +55,7 @@ type respAccountInfo struct {
 }
 
 //==================================================//
-type respOrder []order
+type respOrders []order
 type order struct {
 	Currency    string  `json:"currency"`
 	ID          string  `json:"id"`
@@ -70,6 +70,12 @@ type order struct {
 }
 
 //==================================================//
+type respSimple struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+//==================================================//
 var apiClient, tradeClient *resty.Client
 
 func init() {
@@ -77,13 +83,20 @@ func init() {
 		SetHostURL(config.dataURL).
 		SetHeaders(map[string]string{
 			"Content-Type": "application/json",
-		})
+		}).OnAfterResponse(func(client *resty.Client, req *resty.Response) error {
+		for k := range client.QueryParam {
+			delete(client.QueryParam, k)
+		}
+		return nil
+	})
 
 	tradeClient = resty.New().SetDebug(false).
 		SetHostURL(config.tradeURL).
 		SetHeaders(map[string]string{
 			"Content-Type": "application/json",
 		})
+	resetQueryParams(tradeClient)
+	resetQueryParams(apiClient)
 }
 
 func depth(api string, market string, size string) *respDepth {
@@ -128,7 +141,7 @@ func accountInfo(api string, sign string) *respAccountInfo {
 }
 
 // tradeType 交易类型1/0[buy/sell]
-func getOrders(api string, currency string, tradeType string, sign string) *respOrder {
+func getOrders(api string, currency string, tradeType string, sign string) *respOrders {
 	resp, _ := tradeClient.SetQueryParams(map[string]string{
 		"accesskey": config.accesstoken,
 		"currency":  currency,
@@ -139,7 +152,24 @@ func getOrders(api string, currency string, tradeType string, sign string) *resp
 		"sign":      sign,
 		"reqTime":   strconv.FormatInt(time.Now().UnixNano()/1000000, 10),
 	}).R().Get(api)
-	var res respOrder
+	var res respOrders
 	json.Unmarshal(resp.Body(), &res)
 	return &res
+}
+
+func cancelOrder(api string, id string, currency string, sign string) bool {
+	resp, _ := tradeClient.SetQueryParams(map[string]string{
+		"accesskey": config.accesstoken,
+		"currency":  currency,
+		"method":    "cancelOrder",
+		"id":        id,
+		"sign":      sign,
+		"reqTime":   strconv.FormatInt(time.Now().UnixNano()/1000000, 10),
+	}).R().Get(api)
+	var res respSimple
+	json.Unmarshal(resp.Body(), &res)
+	if res.Code == 1000 {
+		return true
+	}
+	return false
 }

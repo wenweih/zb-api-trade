@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/go-resty/resty"
 	homedir "github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 )
@@ -72,4 +73,13 @@ func sortParams(params map[string]string) string {
 		buffer.WriteString("&")
 	}
 	return strings.TrimSuffix(buffer.String(), "&")
+}
+
+func resetQueryParams(client *resty.Client) {
+	client.OnAfterResponse(func(client *resty.Client, req *resty.Response) error {
+		for k := range client.QueryParam {
+			delete(client.QueryParam, k)
+		}
+		return nil
+	})
 }
