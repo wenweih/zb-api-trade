@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"strconv"
-	"time"
 
 	"github.com/go-resty/resty"
 	"github.com/mitchellh/mapstructure"
@@ -79,24 +77,11 @@ type respSimple struct {
 var apiClient, tradeClient *resty.Client
 
 func init() {
-	apiClient = resty.New().SetDebug(false).
-		SetHostURL(config.dataURL).
-		SetHeaders(map[string]string{
-			"Content-Type": "application/json",
-		}).OnAfterResponse(func(client *resty.Client, req *resty.Response) error {
-		for k := range client.QueryParam {
-			delete(client.QueryParam, k)
-		}
-		return nil
-	})
+	apiClient = resty.New().SetDebug(false).SetHostURL(config.dataURL)
+	tradeClient = resty.New().SetDebug(false).SetHostURL(config.tradeURL)
 
-	tradeClient = resty.New().SetDebug(false).
-		SetHostURL(config.tradeURL).
-		SetHeaders(map[string]string{
-			"Content-Type": "application/json",
-		})
-	resetQueryParams(tradeClient)
-	resetQueryParams(apiClient)
+	handleQueryParams(tradeClient)
+	handleQueryParams(apiClient)
 }
 
 func depth(api string, market string, size string) *respDepth {
@@ -125,10 +110,8 @@ func trades(api string, market string) *respTrades {
 
 func accountInfo(api string, sign string) *respAccountInfo {
 	resp, _ := tradeClient.SetQueryParams(map[string]string{
-		"accesskey": config.accesstoken,
-		"method":    "getAccountInfo",
-		"sign":      sign,
-		"reqTime":   strconv.FormatInt(time.Now().UnixNano()/1000000, 10),
+		"method": "getAccountInfo",
+		"sign":   sign,
 	}).R().Get(api)
 
 	var (
@@ -143,14 +126,12 @@ func accountInfo(api string, sign string) *respAccountInfo {
 // tradeType 交易类型1/0[buy/sell]
 func getOrders(api string, currency string, tradeType string, sign string) *respOrders {
 	resp, _ := tradeClient.SetQueryParams(map[string]string{
-		"accesskey": config.accesstoken,
 		"currency":  currency,
 		"method":    "getOrdersNew",
 		"pageIndex": "1",
 		"pageSize":  "50",
 		"tradeType": tradeType,
 		"sign":      sign,
-		"reqTime":   strconv.FormatInt(time.Now().UnixNano()/1000000, 10),
 	}).R().Get(api)
 	var res respOrders
 	json.Unmarshal(resp.Body(), &res)
@@ -159,12 +140,10 @@ func getOrders(api string, currency string, tradeType string, sign string) *resp
 
 func cancelOrder(api string, id string, currency string, sign string) bool {
 	resp, _ := tradeClient.SetQueryParams(map[string]string{
-		"accesskey": config.accesstoken,
-		"currency":  currency,
-		"method":    "cancelOrder",
-		"id":        id,
-		"sign":      sign,
-		"reqTime":   strconv.FormatInt(time.Now().UnixNano()/1000000, 10),
+		"currency": currency,
+		"method":   "cancelOrder",
+		"id":       id,
+		"sign":     sign,
 	}).R().Get(api)
 	var res respSimple
 	json.Unmarshal(resp.Body(), &res)

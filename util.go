@@ -8,7 +8,9 @@ import (
 	"encoding/hex"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-resty/resty"
 	homedir "github.com/mitchellh/go-homedir"
@@ -75,11 +77,23 @@ func sortParams(params map[string]string) string {
 	return strings.TrimSuffix(buffer.String(), "&")
 }
 
-func resetQueryParams(client *resty.Client) {
+func handleQueryParams(client *resty.Client) {
 	client.OnAfterResponse(func(client *resty.Client, req *resty.Response) error {
 		for k := range client.QueryParam {
 			delete(client.QueryParam, k)
 		}
 		return nil
+	})
+
+	client.OnBeforeRequest(func(client *resty.Client, req *resty.Request) error {
+		client.SetQueryParams(map[string]string{
+			"accesskey": config.accesstoken,
+			"reqTime":   strconv.FormatInt(time.Now().UnixNano()/1000000, 10),
+		})
+		return nil
+	})
+
+	client.SetHeaders(map[string]string{
+		"Content-Type": "application/json",
 	})
 }
