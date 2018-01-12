@@ -6,6 +6,7 @@ import (
 	"crypto/md5"
 	"crypto/sha1"
 	"encoding/hex"
+	"encoding/json"
 	"os"
 	"sort"
 	"strconv"
@@ -96,4 +97,13 @@ func handleQueryParams(client *resty.Client) {
 	client.SetHeaders(map[string]string{
 		"Content-Type": "application/json",
 	})
+}
+
+func simpleResponse(resp *resty.Response) bool {
+	var res respSimple
+	json.Unmarshal(resp.Body(), &res)
+	if res.Code == 1000 {
+		return true
+	}
+	return false
 }

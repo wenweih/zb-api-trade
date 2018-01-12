@@ -123,6 +123,18 @@ func accountInfo(api string, sign string) *respAccountInfo {
 	return &res
 }
 
+func createOrder(api, amount, currency, tradeType, price, sign string) bool {
+	resp, _ := tradeClient.SetQueryParams(map[string]string{
+		"amount":    amount,
+		"currency":  currency,
+		"method":    "order",
+		"price":     price,
+		"tradeType": tradeType,
+		"sign":      sign,
+	}).R().Get(api)
+	return simpleResponse(resp)
+}
+
 // tradeType 交易类型1/0[buy/sell]
 func getOrders(api string, currency string, tradeType string, sign string) *respOrders {
 	resp, _ := tradeClient.SetQueryParams(map[string]string{
@@ -145,10 +157,5 @@ func cancelOrder(api string, id string, currency string, sign string) bool {
 		"id":       id,
 		"sign":     sign,
 	}).R().Get(api)
-	var res respSimple
-	json.Unmarshal(resp.Body(), &res)
-	if res.Code == 1000 {
-		return true
-	}
-	return false
+	return simpleResponse(resp)
 }
