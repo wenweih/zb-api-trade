@@ -55,6 +55,21 @@ type respAccountInfo struct {
 }
 
 //==================================================//
+type respOrder []order
+type order struct {
+	Currency    string  `json:"currency"`
+	ID          string  `json:"id"`
+	Price       float64 `json:"price"`
+	Status      int     `json:"status"`
+	TotalAmount float64 `json:"total_amount"`
+	TradeAmount float64 `json:"trade_amount"`
+	TradeDate   int64   `json:"trade_date"`
+	TradeMoney  string  `json:"trade_money"`
+	TradePrice  float64 `json:"trade_price"`
+	OrderType   int     `json:"type"`
+}
+
+//==================================================//
 var apiClient, tradeClient *resty.Client
 
 func init() {
@@ -109,5 +124,22 @@ func accountInfo(api string, sign string) *respAccountInfo {
 	)
 	json.Unmarshal(resp.Body(), &mapInterface)
 	mapstructure.Decode(mapInterface, &res)
+	return &res
+}
+
+// tradeType 交易类型1/0[buy/sell]
+func getOrders(api string, currency string, tradeType string, sign string) *respOrder {
+	resp, _ := tradeClient.SetQueryParams(map[string]string{
+		"accesskey": config.accesstoken,
+		"currency":  currency,
+		"method":    "getOrdersNew",
+		"pageIndex": "1",
+		"pageSize":  "50",
+		"tradeType": tradeType,
+		"sign":      sign,
+		"reqTime":   strconv.FormatInt(time.Now().UnixNano()/1000000, 10),
+	}).R().Get(api)
+	var res respOrder
+	json.Unmarshal(resp.Body(), &res)
 	return &res
 }
