@@ -28,6 +28,21 @@ type trade struct {
 }
 
 //==================================================//
+type ticker struct {
+	Vol  string `json:"vol"`
+	Last string `json:"last"`
+	Sell string `json:"sell"`
+	Buy  string `json:"buy"`
+	High string `json:"high"`
+	Low  string `json:"low"`
+}
+
+type respTicker struct {
+	Ticker ticker `json:"ticker"`
+	Date   string `json:"date"`
+}
+
+//==================================================//
 type accountInfoCoin struct {
 	EnName        string `mapstructure:"enName"`
 	Freez         string `mapstructure:"freez"`
