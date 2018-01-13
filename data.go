@@ -9,6 +9,14 @@ type respDepth struct {
 }
 
 //==================================================//
+type klineData []float64
+type respKline struct {
+	Symbol    string      `json:"symbol"`
+	Data      []klineData `json:"data"`
+	MoneyType string      `json:"moneyType"`
+}
+
+//==================================================//
 type respTrades []trade
 type trade struct {
 	Amount    string `json:"amount"`

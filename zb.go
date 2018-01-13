@@ -32,6 +32,20 @@ func depth(api, market, size string) *respDepth {
 	return &res
 }
 
+func kline(api, market, timeType, size string) *respKline {
+	resp, _ := apiClient.SetQueryParams(map[string]string{
+		"market": market,
+		"type":   timeType,
+		"size":   size,
+	}).R().Get(api)
+	var (
+		res          respKline
+		mapInterface map[string]interface{}
+	)
+	json.Unmarshal(resp.Body(), &res)
+	mapstructure.Decode(mapInterface, &res)
+	return &res
+}
 func trades(api, market string) *respTrades {
 	resp, _ := apiClient.SetQueryParams(map[string]string{
 		"market": market,
