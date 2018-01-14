@@ -1,9 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/boltdb/bolt"
+)
+
+var db *bolt.DB
 
 func init() {
 	cmdExecute()
+	db = boltDB()
 }
 func main() {
 	params := map[string]string{
@@ -53,13 +60,14 @@ func main() {
 	resp := cancelOrder("cancelOrder", id, "bts_usdt", cancelSign)
 	fmt.Println(resp)
 
-	r := newReceiver()
-	r.Add(1)
-	go depthTaskRun(r)
-	r.Wait()
-
 	trades("trades", "btc_usdt")
 	kline("kline", "btc_usdt", "1min", "10")
 	tick := getTicker("ticker", "btc_usdt")
 	fmt.Println(tick.Ticker.Last)
+
+	r := newReceiver()
+	r.Add(1)
+	go depthTaskRun(r)
+
+	r.Wait()
 }

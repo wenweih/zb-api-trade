@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/boltdb/bolt"
 	"github.com/go-resty/resty"
 	homedir "github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
@@ -107,6 +108,14 @@ func simpleResponse(resp *resty.Response) bool {
 		return true
 	}
 	return false
+}
+
+func boltDB() *bolt.DB {
+	db, err := bolt.Open("TokenTrade.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	if err != nil {
+		Exit(err.Error())
+	}
+	return db
 }
 
 type receiver struct {

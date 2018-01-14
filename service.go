@@ -1,14 +1,41 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 
+	"github.com/boltdb/bolt"
 	"github.com/jasonlvhit/gocron"
 )
 
 func depthTask() {
 	depRes := depth("depth", "btc_usdt", "20")
-	fmt.Println(depRes)
+	db.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte("depth"))
+		if err != nil {
+			Exit(err.Error())
+		}
+
+		encodeed, err := json.Marshal(depRes)
+		if err != nil {
+			Exit(err.Error())
+		}
+		b.Put([]byte("depth"), encodeed)
+
+		s := gocron.NewScheduler()
+		s.Every(1).Seconds().Do(readDepthTask)
+		<-s.Start()
+		return nil
+	})
+}
+
+func readDepthTask() {
+	db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("depth"))
+		v := b.Get([]byte("depth"))
+		fmt.Printf("%sn", v)
+		return nil
+	})
 }
 
 func depthTaskRun(r *receiver) {
