@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-redis/redis"
 	"github.com/go-resty/resty"
 	homedir "github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
@@ -25,7 +26,7 @@ func init() {
 	log.SetFormatter(Formatter)
 }
 
-// Exit 程序推出函数
+// Exit 程序退出函数
 func Exit(str ...string) {
 	log.Error(strings.Join(str, ""))
 	os.Exit(1)
@@ -106,4 +107,13 @@ func simpleResponse(resp *resty.Response) bool {
 		return true
 	}
 	return false
+}
+
+func redisClient() *redis.Client {
+	client := redis.NewClient(&redis.Options{
+		Addr:     config.redis,
+		Password: config.redisPwd, // no password set
+		DB:       0,               // use default DB
+	})
+	return client
 }
