@@ -14,7 +14,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-redis/redis"
 	"github.com/go-resty/resty"
 	homedir "github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
@@ -108,15 +107,6 @@ func simpleResponse(resp *resty.Response) bool {
 		return true
 	}
 	return false
-}
-
-func redisClient() *redis.Client {
-	client := redis.NewClient(&redis.Options{
-		Addr:     config.redis,
-		Password: config.redisPwd, // no password set
-		DB:       0,               // use default DB
-	})
-	return client
 }
 
 type receiver struct {

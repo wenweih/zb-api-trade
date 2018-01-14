@@ -13,8 +13,6 @@ type configure struct {
 	accesstoken string
 	dataURL     string
 	tradeURL    string
-	redis       string
-	redisPwd    string
 }
 
 // Config 中币接口配置信息
@@ -74,10 +72,6 @@ func initConfig() {
 			config.dataURL = value.(string)
 		case "trade_url":
 			config.tradeURL = value.(string)
-		case "redis":
-			config.redis = value.(string)
-		case "redis_pwd":
-			config.redisPwd = value.(string)
 		}
 	}
 }
