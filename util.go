@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -116,4 +117,16 @@ func redisClient() *redis.Client {
 		DB:       0,               // use default DB
 	})
 	return client
+}
+
+type receiver struct {
+	sync.WaitGroup
+	Data chan int
+}
+
+func newReceiver() *receiver {
+	r := &receiver{
+		Data: make(chan int),
+	}
+	return r
 }

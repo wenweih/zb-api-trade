@@ -53,7 +53,10 @@ func main() {
 	resp := cancelOrder("cancelOrder", id, "bts_usdt", cancelSign)
 	fmt.Println(resp)
 
-	depth("depth", "ltc_usdt", "20")
+	r := newReceiver()
+	r.Add(1)
+	go depthTaskRun(r)
+	r.Wait()
 
 	trades("trades", "btc_usdt")
 	kline("kline", "btc_usdt", "1min", "10")

@@ -3,7 +3,7 @@ package main
 //==================================================//
 type depthOrder []float64
 type respDepth struct {
-	Timestamp float64      `mapstructure:"timestamp"`
+	Timestamp int          `mapstructure:"timestamp"`
 	Asks      []depthOrder `mapstructure:"asks"`
 	Bids      []depthOrder `mapstructure:"bids"`
 }
