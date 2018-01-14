@@ -17,18 +17,31 @@ type configure struct {
 
 // Config 中币接口配置信息
 var (
-	cfgFile string
-	config  configure
-	rootCmd = &cobra.Command{
-		Use:   "zb_trade",
-		Short: "A tool for earning money",
-		Run: func(cmd *cobra.Command, args []string) {
-		},
-	}
+	cfgFile     string
+	config      configure
+	concurrency *receiver
 )
 
+var rootCmd = &cobra.Command{
+	Use:   "zb_trade",
+	Short: "A tool for earning money",
+	Run: func(cmd *cobra.Command, args []string) {
+	},
+}
+
+var startCmd = &cobra.Command{
+	Use:   "start",
+	Short: "You are the best",
+	Long:  ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		concurrency.Add(1)
+		go depthTaskRun(concurrency)
+	},
+}
+
 // Execute 命令行入口
-func cmdExecute() {
+func cmdExecute(r *receiver) {
+	concurrency = r
 	if err := rootCmd.Execute(); err != nil {
 		Exit(err.Error())
 	}
@@ -37,6 +50,7 @@ func cmdExecute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.Flags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/zb.yaml)")
+	rootCmd.AddCommand(startCmd)
 }
 
 func initConfig() {

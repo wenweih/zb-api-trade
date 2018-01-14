@@ -9,7 +9,6 @@ import (
 var db *bolt.DB
 
 func init() {
-	cmdExecute()
 	db = boltDB()
 }
 func main() {
@@ -66,8 +65,7 @@ func main() {
 	fmt.Println(tick.Ticker.Last)
 
 	r := newReceiver()
-	r.Add(1)
-	go depthTaskRun(r)
+	cmdExecute(r)
 
 	r.Wait()
 }
