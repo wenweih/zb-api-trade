@@ -3,22 +3,11 @@ package main
 import (
 	"encoding/json"
 
-	"github.com/go-resty/resty"
 	"github.com/mitchellh/mapstructure"
 )
 
-var apiClient, tradeClient *resty.Client
-
-func init() {
-	apiClient = resty.New().SetDebug(false).SetHostURL(config.dataURL)
-	tradeClient = resty.New().SetDebug(false).SetHostURL(config.tradeURL)
-
-	handleQueryParams(tradeClient)
-	handleQueryParams(apiClient)
-}
-
 func depth(api, market, size string) *respDepth {
-	resp, _ := apiClient.SetQueryParams(map[string]string{
+	resp, _ := dataClient.SetQueryParams(map[string]string{
 		"market": market,
 		"size":   size,
 	}).R().Get(api)
@@ -33,7 +22,7 @@ func depth(api, market, size string) *respDepth {
 }
 
 func getTicker(api, market string) *respTicker {
-	resp, _ := apiClient.SetQueryParams(map[string]string{
+	resp, _ := dataClient.SetQueryParams(map[string]string{
 		"market": market,
 	}).R().Get(api)
 	var res respTicker
@@ -41,7 +30,7 @@ func getTicker(api, market string) *respTicker {
 	return &res
 }
 func kline(api, market, timeType, size string) *respKline {
-	resp, _ := apiClient.SetQueryParams(map[string]string{
+	resp, _ := dataClient.SetQueryParams(map[string]string{
 		"market": market,
 		"type":   timeType,
 		"size":   size,
@@ -55,7 +44,7 @@ func kline(api, market, timeType, size string) *respKline {
 	return &res
 }
 func trades(api, market string) *respTrades {
-	resp, _ := apiClient.SetQueryParams(map[string]string{
+	resp, _ := dataClient.SetQueryParams(map[string]string{
 		"market": market,
 	}).R().Get(api)
 	var res respTrades
@@ -68,7 +57,6 @@ func accountInfo(api, sign string) *respAccountInfo {
 		"method": "getAccountInfo",
 		"sign":   sign,
 	}).R().Get(api)
-
 	var (
 		res          respAccountInfo
 		mapInterface map[string]interface{}

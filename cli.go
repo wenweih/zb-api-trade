@@ -4,6 +4,7 @@ package main
 import (
 	"os"
 
+	"github.com/go-resty/resty"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -17,27 +18,28 @@ type configure struct {
 
 // Config 中币接口配置信息
 var (
-	cfgFile     string
-	config      configure
-	concurrency *receiver
+	cfgFile                 string
+	config                  configure
+	concurrency             *receiver
+	dataClient, tradeClient httpClient
+
+	rootCmd = &cobra.Command{
+		Use:   "zb_trade",
+		Short: "A tool for earning money",
+		Run: func(cmd *cobra.Command, args []string) {
+		},
+	}
+
+	startCmd = &cobra.Command{
+		Use:   "start",
+		Short: "You are the best",
+		Long:  ``,
+		Run: func(cmd *cobra.Command, args []string) {
+			concurrency.Add(1)
+			go depthTaskRun(concurrency)
+		},
+	}
 )
-
-var rootCmd = &cobra.Command{
-	Use:   "zb_trade",
-	Short: "A tool for earning money",
-	Run: func(cmd *cobra.Command, args []string) {
-	},
-}
-
-var startCmd = &cobra.Command{
-	Use:   "start",
-	Short: "You are the best",
-	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		concurrency.Add(1)
-		go depthTaskRun(concurrency)
-	},
-}
 
 // Execute 命令行入口
 func cmdExecute(r *receiver) {
@@ -48,9 +50,9 @@ func cmdExecute(r *receiver) {
 }
 
 func init() {
+	rootCmd.AddCommand(startCmd)
 	cobra.OnInitialize(initConfig)
 	rootCmd.Flags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/zb.yaml)")
-	rootCmd.AddCommand(startCmd)
 }
 
 func initConfig() {
@@ -88,4 +90,12 @@ func initConfig() {
 			config.tradeURL = value.(string)
 		}
 	}
+
+	c1 := resty.New().SetDebug(false).SetHostURL(config.dataURL)
+	c2 := resty.New().SetDebug(false).SetHostURL(config.tradeURL)
+	dataClient = httpClient{c1}
+	tradeClient = httpClient{c2}
+
+	dataClient.handleQueryParams()
+	tradeClient.handleQueryParams()
 }

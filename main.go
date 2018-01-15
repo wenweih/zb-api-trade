@@ -12,14 +12,6 @@ func init() {
 	db = boltDB()
 }
 func main() {
-	params := map[string]string{
-		"accesskey": config.accesstoken,
-		"method":    "getAccountInfo",
-	}
-	sorted := sortParams(params)
-	sign := hmacSign(sorted)
-	accountInfo("getAccountInfo", sign)
-
 	createOrderParams := map[string]string{
 		"accesskey": config.accesstoken,
 		"amount":    "1",
@@ -66,6 +58,14 @@ func main() {
 
 	r := newReceiver()
 	cmdExecute(r)
+
+	params := map[string]string{
+		"accesskey": config.accesstoken,
+		"method":    "getAccountInfo",
+	}
+	sorted := sortParams(params)
+	sign := hmacSign(sorted)
+	accountInfo("getAccountInfo", sign)
 
 	r.Wait()
 }

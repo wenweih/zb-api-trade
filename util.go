@@ -80,7 +80,11 @@ func sortParams(params map[string]string) string {
 	return strings.TrimSuffix(buffer.String(), "&")
 }
 
-func handleQueryParams(client *resty.Client) {
+type httpClient struct {
+	*resty.Client
+}
+
+func (client *httpClient) handleQueryParams() {
 	client.OnAfterResponse(func(client *resty.Client, req *resty.Response) error {
 		for k := range client.QueryParam {
 			delete(client.QueryParam, k)
