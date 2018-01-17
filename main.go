@@ -1,16 +1,7 @@
 package main
 
-import (
-	"fmt"
+import "fmt"
 
-	"github.com/boltdb/bolt"
-)
-
-var db *bolt.DB
-
-func init() {
-	db = boltDB()
-}
 func main() {
 	createOrderParams := map[string]string{
 		"accesskey": config.accesstoken,

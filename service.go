@@ -15,16 +15,11 @@ func depthTask() {
 		if err != nil {
 			Exit(err.Error())
 		}
-
 		encodeed, err := json.Marshal(depRes)
 		if err != nil {
 			Exit(err.Error())
 		}
 		b.Put([]byte("depth"), encodeed)
-
-		s := gocron.NewScheduler()
-		s.Every(1).Seconds().Do(readDepthTask)
-		<-s.Start()
 		return nil
 	})
 }
@@ -36,6 +31,11 @@ func readDepthTask() {
 		fmt.Printf("%sn", v)
 		return nil
 	})
+}
+func readDepthTaskRun(r *receiver) {
+	defer r.Done()
+	gocron.Every(1).Seconds().Do(readDepthTask)
+	<-gocron.Start()
 }
 
 func depthTaskRun(r *receiver) {

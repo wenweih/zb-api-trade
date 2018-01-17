@@ -4,6 +4,7 @@ package main
 import (
 	"os"
 
+	"github.com/boltdb/bolt"
 	"github.com/go-resty/resty"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -18,6 +19,7 @@ type configure struct {
 
 // Config 中币接口配置信息
 var (
+	db                      *bolt.DB
 	cfgFile                 string
 	config                  configure
 	concurrency             *receiver
@@ -37,6 +39,8 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			concurrency.Add(1)
 			go depthTaskRun(concurrency)
+			concurrency.Add(1)
+			go readDepthTaskRun(concurrency)
 		},
 	}
 )
@@ -50,6 +54,7 @@ func cmdExecute(r *receiver) {
 }
 
 func init() {
+	db = boltDB()
 	rootCmd.AddCommand(startCmd)
 	cobra.OnInitialize(initConfig)
 	rootCmd.Flags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/zb.yaml)")
