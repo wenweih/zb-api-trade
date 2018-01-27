@@ -8,8 +8,10 @@ import (
 	"github.com/jasonlvhit/gocron"
 )
 
-func depthTask() {
+func depthTask(r *receiver) {
+	r.Lock()
 	depRes := depth("depth", "btc_usdt", "20")
+	r.Unlock()
 	db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("depth"))
 		if err != nil {
@@ -40,6 +42,6 @@ func readDepthTaskRun(r *receiver) {
 
 func depthTaskRun(r *receiver) {
 	defer r.Done()
-	gocron.Every(1).Seconds().Do(depthTask)
+	gocron.Every(1).Seconds().Do(depthTask, r)
 	<-gocron.Start()
 }

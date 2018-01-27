@@ -125,6 +125,7 @@ func boltDB() *bolt.DB {
 type receiver struct {
 	sync.WaitGroup
 	Data chan int
+	sync.Mutex
 }
 
 func newReceiver() *receiver {
