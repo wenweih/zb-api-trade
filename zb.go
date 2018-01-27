@@ -43,6 +43,7 @@ func kline(api, market, timeType, size string) *respKline {
 	mapstructure.Decode(mapInterface, &res)
 	return &res
 }
+
 func trades(api, market string) *respTrades {
 	resp, _ := dataClient.SetQueryParams(map[string]string{
 		"market": market,
