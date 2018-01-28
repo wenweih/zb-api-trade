@@ -2,46 +2,69 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/boltdb/bolt"
 	"github.com/jasonlvhit/gocron"
 )
 
-func depthTask(r *receiver) {
+var (
+	dbTrade respTrades
+	dbDepth respDepth
+)
+
+//==================================================//
+func writeTask(r *receiver) {
 	r.Lock()
-	depRes := depth("depth", "btc_usdt", "20")
+	depRes := depth("depth", "eos_usdt", "20")
+	tradeRes := trades("trades", "eos_usdt")
 	r.Unlock()
-	db.Update(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte("depth"))
+	db.Batch(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte("TokenTrade"))
 		if err != nil {
 			Exit(err.Error())
 		}
-		encodeed, err := json.Marshal(depRes)
+
+		// save depth data
+		depthEncodeed, err := json.Marshal(depRes)
 		if err != nil {
 			Exit(err.Error())
 		}
-		b.Put([]byte("depth"), encodeed)
+		b.Put([]byte("depth"), depthEncodeed)
+
+		// save trade data
+		TradeEncodeed, err := json.Marshal(tradeRes)
+		if err != nil {
+			Exit(err.Error())
+		}
+		b.Put([]byte("trade"), TradeEncodeed)
+
 		return nil
 	})
 }
 
-func readDepthTask() {
-	db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("depth"))
-		v := b.Get([]byte("depth"))
-		fmt.Printf("%sn", v)
-		return nil
-	})
-}
-func readDepthTaskRun(r *receiver) {
+func writeTaskRun(r *receiver) {
 	defer r.Done()
-	gocron.Every(1).Seconds().Do(readDepthTask)
+	gocron.Every(1).Seconds().Do(writeTask, r)
 	<-gocron.Start()
 }
 
-func depthTaskRun(r *receiver) {
+//==================================================//
+func readTask() {
+	db.View(func(tx *bolt.Tx) error {
+		c := tx.Bucket([]byte("TokenTrade")).Cursor()
+
+		_, tradeValue := c.Seek([]byte("trade"))
+		_, depthValue := c.Seek([]byte("depth"))
+
+		json.Unmarshal(tradeValue, &dbTrade)
+		json.Unmarshal(depthValue, &dbDepth)
+
+		return nil
+	})
+}
+
+func readTaskRun(r *receiver) {
 	defer r.Done()
-	gocron.Every(1).Seconds().Do(depthTask, r)
+	gocron.Every(1).Seconds().Do(readTask)
 	<-gocron.Start()
 }

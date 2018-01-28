@@ -3,6 +3,7 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/go-resty/resty"
@@ -34,13 +35,14 @@ var (
 
 	startCmd = &cobra.Command{
 		Use:   "start",
-		Short: "You are the best",
+		Short: "Start to trade...",
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			concurrency.Add(1)
-			go depthTaskRun(concurrency)
+			go writeTaskRun(concurrency)
+			time.Sleep(3)
 			concurrency.Add(1)
-			go readDepthTaskRun(concurrency)
+			go readTaskRun(concurrency)
 		},
 	}
 )
