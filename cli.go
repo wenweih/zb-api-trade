@@ -3,7 +3,6 @@ package main
 
 import (
 	"os"
-	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/go-resty/resty"
@@ -27,7 +26,7 @@ var (
 	dataClient, tradeClient httpClient
 
 	rootCmd = &cobra.Command{
-		Use:   "zb_trade",
+		Use:   "TokenTrade",
 		Short: "A tool for earning money",
 		Run: func(cmd *cobra.Command, args []string) {
 		},
@@ -40,7 +39,6 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			concurrency.Add(1)
 			go writeTaskRun(concurrency)
-			time.Sleep(3)
 			concurrency.Add(1)
 			go readTaskRun(concurrency)
 		},

@@ -19,11 +19,7 @@ func writeTask(r *receiver) {
 	tradeRes := trades("trades", "eos_usdt")
 	r.Unlock()
 	db.Batch(func(tx *bolt.Tx) error {
-		b, err := tx.CreateBucketIfNotExists([]byte("TokenTrade"))
-		if err != nil {
-			Exit(err.Error())
-		}
-
+		b := tx.Bucket([]byte("TokenTrade"))
 		// save depth data
 		depthEncodeed, err := json.Marshal(depRes)
 		if err != nil {
@@ -52,7 +48,6 @@ func writeTaskRun(r *receiver) {
 func readTask() {
 	db.View(func(tx *bolt.Tx) error {
 		c := tx.Bucket([]byte("TokenTrade")).Cursor()
-
 		_, tradeValue := c.Seek([]byte("trade"))
 		_, depthValue := c.Seek([]byte("depth"))
 

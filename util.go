@@ -115,10 +115,19 @@ func simpleResponse(resp *resty.Response) bool {
 }
 
 func boltDB() *bolt.DB {
-	db, err := bolt.Open("/tmp/TokenTrade.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	db, err := bolt.Open("/tmp/TokenTrade.db", 0600, &bolt.Options{Timeout: 5 * time.Second})
 	if err != nil {
 		Exit(err.Error())
 	}
+
+	db.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists([]byte("TokenTrade"))
+		if err != nil {
+			Exit(err.Error())
+		}
+		return nil
+	})
+
 	return db
 }
 
