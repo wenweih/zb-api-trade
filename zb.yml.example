@@ -1,0 +1,4 @@
+secretkey: ""
+accesstoken: ""
+data_url: "http://api.zb.com/data/v1/"
+trade_url: "https://trade.zb.com/api/"

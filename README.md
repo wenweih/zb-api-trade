@@ -6,6 +6,8 @@ Golang 实现的数字货币 API 交易，由于中币收手续费了，现开�
 ```sh
 dep ensure -update -v
 go install
+
+cp zb.yml to your home directory
 ```
 ### Usage
 ```sh
